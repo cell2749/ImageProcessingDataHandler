@@ -9,7 +9,14 @@ router.get('/', function (req, res, next) {
 });
 router.post('/updateMetadata', function (req, res) {
     var data = req.body;
-
+    var regex = / [+-]?\d+(\.\d+)?/g
+    var floats = data.boxes.match(regex).map(function(v) { return parseFloat(v); });
+    data.boxes = [];
+    for(var i =0;i<floats.length;i+=4){
+        data.boxes.push(floats.slice(i,i+4));
+    }
+    var probabilities = data.probabilities.match(regex).map(function(v) { return parseFloat(v); });
+    data.probabilities = probabilities;
     ParkingLotModel.findOne({label: "default"}, function (err, doc) {
         if (err) console.log("Error finding default", err);
         if (doc) {
@@ -17,11 +24,11 @@ router.post('/updateMetadata', function (req, res) {
                 doc.currentSize = data.count;
             }
             for (var i = 0; i < data.boxes.length; i++) {
-                var xdata = data.boxes[i][0][0];
-                var ydata = data.boxes[i][0][1];
+                var xdata = data.boxes[i][0];
+                var ydata = data.boxes[i][1];
                 if (doc.thresh ^ 2 >= (Math.pow(doc[i].xmin - xdata, 2) + Math.pow(doc[i].ymin - ydata, 2))) {
-                    doc[i].xmin = data.boxes[i][0][0];
-                    doc[i].ymin = data.boxes[i][0][1];
+                    doc[i].xmin = xdata;
+                    doc[i].ymin = ydata;
                     doc[i].prob = data.probabilities[i];
                 } else {
                     doc[i].prob = 0;
@@ -44,7 +51,7 @@ router.post('/updateMetadata', function (req, res) {
 /**
  * Only for local use since anyone could spam this address
  * */
-/*router.post('/createDefault', function (req, res) {
+router.post('/createDefault', function (req, res) {
     var data = req.body;
 
     data["_id"] = mongoose.Types.ObjectId();
@@ -56,7 +63,6 @@ router.post('/updateMetadata', function (req, res) {
     }
     var probabilities = data.probabilities.match(regex).map(function(v) { return parseFloat(v); });
     data.probabilities = probabilities;
-    console.log(data);
     var parkingLot = new ParkingLotModel();
     parkingLot.maxSize = data.count;
     parkingLot.currentSize = data.count;
