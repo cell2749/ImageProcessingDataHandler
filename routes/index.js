@@ -20,6 +20,8 @@ router.post('/updateMetadata', function (req, res) {
     ParkingLotModel.findOne({label: "default"}, function (err, doc) {
         if (err) console.log("Error finding default", err);
         if (doc) {
+            console.log("DOC/",doc);
+            console.log("DATA/",data);
             if (data.count <= doc.maxSize) {
                 doc.currentSize = data.count;
             }
