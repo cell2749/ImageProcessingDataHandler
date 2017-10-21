@@ -51,7 +51,7 @@ router.post('/updateMetadata', function (req, res) {
 /**
  * Only for local use since anyone could spam this address
  * */
-router.post('/createDefault', function (req, res) {
+/*router.post('/createDefault', function (req, res) {
     var data = req.body;
 
     data["_id"] = mongoose.Types.ObjectId();
