@@ -24,23 +24,25 @@ router.post('/updateMetadata', function (req, res) {
                 doc.currentSize = data.count;
             }
             for (var i = 0; i < data.boxes.length; i++) {
-                var xdata = data.boxes[i][0];
-                var ydata = data.boxes[i][1];
-                if (doc.thresh ^ 2 >= (Math.pow(doc[i].xmin - xdata, 2) + Math.pow(doc[i].ymin - ydata, 2))) {
-                    doc[i].xmin = xdata;
-                    doc[i].ymin = ydata;
-                    doc[i].prob = data.probabilities[i];
-                } else {
-                    doc[i].prob = 0;
-                }
-                if (i === data.boxes.length - 1) {
-                    doc.save(function (err, result) {
-                        if (err) {
-                            console.log("Error saving the doc", err);
-                        } else {
-                            res.status(200).send("Ok!");
-                        }
-                    })
+                for(var k=0;k<doc.map.length;i++) {
+                    var xdata = data.boxes[i][0];
+                    var ydata = data.boxes[i][1];
+                    if (doc.thresh ^ 2 >= (Math.pow(doc.map[k].xmin - xdata, 2) + Math.pow(doc.map[k].ymin - ydata, 2))) {
+                        doc.map[k].xmin = xdata;
+                        doc.map[k].ymin = ydata;
+                        doc.map[k].prob = data.probabilities[i];
+                    } else {
+                        doc[i].prob = 0;
+                    }
+                    if (i === data.boxes.length - 1) {
+                        doc.save(function (err, result) {
+                            if (err) {
+                                console.log("Error saving the doc", err);
+                            } else {
+                                res.status(200).send("Ok!");
+                            }
+                        })
+                    }
                 }
             }
         } else {
