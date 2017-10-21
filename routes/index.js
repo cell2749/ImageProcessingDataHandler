@@ -41,7 +41,10 @@ router.post('/updateMetadata', function (req, res) {
         }
     });
 });
-router.post('/createDefault', function (req, res) {
+/**
+ * Only for local use since anyone could spam this address
+ * */
+/*router.post('/createDefault', function (req, res) {
     var data = req.body;
 
     data["_id"] = mongoose.Types.ObjectId();
@@ -75,7 +78,7 @@ router.post('/createDefault', function (req, res) {
         }
 
     });
-});
+});*/
 router.get("/getDefaultParkingLot", function (req, res) {
     ParkingLotModel.findOne({label: "default"}, function (err, result) {
         if (err) {

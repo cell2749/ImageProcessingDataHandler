@@ -4,13 +4,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+var sensitive = require("./sensitive.json");
 var index = require('./routes/index');
 
 var app = express();
 var mongoose = require("mongoose");
 
-mongoose.connect('mongodb://localhost:27017');
+mongoose.connect('mongodb://'+sensitive.username+':'+sensitive.pwd+'@ds127375.mlab.com:27375/g6os');
 var db= mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error...'));
 db.once('open', function callback(){
