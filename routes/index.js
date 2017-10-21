@@ -10,42 +10,52 @@ router.get('/', function (req, res, next) {
 router.post('/updateMetadata', function (req, res) {
     var data = req.body;
     var regex = / [+-]?\d+(\.\d+)?/g
-    var floats = data.boxes.match(regex).map(function(v) { return parseFloat(v); });
+    var floats = data.boxes.match(regex).map(function (v) {
+        return parseFloat(v);
+    });
     data.boxes = [];
-    for(var i =0;i<floats.length;i+=4){
-        data.boxes.push(floats.slice(i,i+4));
+    for (var i = 0; i < floats.length; i += 4) {
+        data.boxes.push(floats.slice(i, i + 4));
     }
-    var probabilities = data.probabilities.match(regex).map(function(v) { return parseFloat(v); });
+    var probabilities = data.probabilities.match(regex).map(function (v) {
+        return parseFloat(v);
+    });
     data.probabilities = probabilities;
     ParkingLotModel.findOne({label: "default"}, function (err, doc) {
         if (err) console.log("Error finding default", err);
         if (doc) {
-            //console.log("DOC/",doc);
-            console.log("DATA/",data);
             if (data.count <= doc.maxSize) {
                 doc.currentSize = data.count;
             }
-            for (var i = 0; i < data.boxes.length; i++) {
-                for(var k=0;k<doc.map.length;i++) {
+
+            for (var k = 0; k < doc.map.length; k++) {
+                var saved = false;
+                for (var i = 0; i < data.boxes.length; i++) {
                     var xdata = data.boxes[i][0];
                     var ydata = data.boxes[i][1];
-                    if (doc.thresh ^ 2 >= (Math.pow(doc.map[k].xmin - xdata, 2) + Math.pow(doc.map[k].ymin - ydata, 2))) {
+
+                    if (Math.pow(0.004, 2) >= (Math.pow(doc.map[k].xmin - xdata, 2) + Math.pow(doc.map[k].ymin - ydata, 2))) {
                         doc.map[k].xmin = xdata;
                         doc.map[k].ymin = ydata;
                         doc.map[k].prob = data.probabilities[i];
-                    } else {
-                        doc[i].prob = 0;
-                    }
-                    if (i === data.boxes.length - 1) {
-                        doc.save(function (err, result) {
-                            if (err) {
-                                console.log("Error saving the doc", err);
-                            } else {
-                                res.status(200).send("Ok!");
-                            }
-                        })
+                        saved = true;
                     }
                 }
+                if (!saved) {
+                    console.log("Wtf_" + i);
+                    doc.map[k].prob = 0;
+                    saved = true;
+                }
+                if (k === doc.map.length - 1 && saved) {
+                    doc.save(function (err, result) {
+                        if (err) {
+                            console.log("Error saving the doc", err);
+                        } else {
+                            res.status(200).send("Ok!");
+                        }
+                    });
+                }
+                saved = false;
             }
         } else {
             res.status(200).send("Create the default first");
@@ -55,23 +65,27 @@ router.post('/updateMetadata', function (req, res) {
 /**
  * Only for local use since anyone could spam this address
  * */
-/*router.post('/createDefault', function (req, res) {
+router.post('/createDefault', function (req, res) {
     var data = req.body;
 
     data["_id"] = mongoose.Types.ObjectId();
     var regex = / [+-]?\d+(\.\d+)?/g
-    var floats = data.boxes.match(regex).map(function(v) { return parseFloat(v); });
+    var floats = data.boxes.match(regex).map(function (v) {
+        return parseFloat(v);
+    });
     data.boxes = [];
-    for(var i =0;i<floats.length;i+=4){
-        data.boxes.push(floats.slice(i,i+4));
+    for (var i = 0; i < floats.length; i += 4) {
+        data.boxes.push(floats.slice(i, i + 4));
     }
-    var probabilities = data.probabilities.match(regex).map(function(v) { return parseFloat(v); });
+    var probabilities = data.probabilities.match(regex).map(function (v) {
+        return parseFloat(v);
+    });
     data.probabilities = probabilities;
     var parkingLot = new ParkingLotModel();
     parkingLot.maxSize = data.count;
     parkingLot.currentSize = data.count;
     parkingLot.label = "default";
-    parkingLot.thresh = 0.04;
+    parkingLot.thresh = 0.004;
     for (var i = 0; i < data.boxes.length; i++) {
         parkingLot.map.push({
             xmin: data.boxes[i][0],
@@ -83,12 +97,12 @@ router.post('/updateMetadata', function (req, res) {
         if (err) {
             console.log(err)
             res.status(200).send('Not OK!');
-        }else{
+        } else {
             res.status(200).send('Default saved successfully!');
         }
 
     });
-});*/
+});
 router.get("/getDefaultParkingLot", function (req, res) {
     ParkingLotModel.findOne({label: "default"}, function (err, result) {
         if (err) {
