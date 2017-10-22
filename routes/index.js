@@ -73,6 +73,7 @@ router.post('/updateMetadata', function (req, res) {
 });
 /**
  * Only for local use since anyone could spam this address
+ * Used only for creating the parking lot template (parking spots)
  * */
 /*router.post('/createDefault', function (req, res) {
     var data = req.body;
