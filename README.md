@@ -5,8 +5,10 @@ Application is made using Nodejs, where express library was used to establish RE
 socket.io to establish web socket updates for the clients. Frontend is done using React libraries.
 For the database we used non-relational MongoDB, which runs on mLab platform.
 ## Installation
-Pre-requisites: npm 5.5.1+ node 6.11.4+
-Execute in the project directory:
+**Pre-requisites:** npm 5.5.1+ node 6.11.4+
+
+**Execute in the project directory:**
+
 `npm install`
 
 ## BasicContent structure
