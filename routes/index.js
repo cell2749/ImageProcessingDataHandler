@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var ParkingLotModel = require("../models/ParkingLotModel");
-var mongoose = require("mongoose");
+var socketClient = require("socket.io-client").connect('https://g6-os.herokuapp.com');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -17,6 +17,7 @@ router.post('/updateMetadata', function (req, res) {
     for (var i = 0; i < floats.length; i += 4) {
         data.boxes.push(floats.slice(i, i + 4));
     }
+    regex = /[+-]?\d+(\.\d+)?/g
     var probabilities = data.probabilities.match(regex).map(function (v) {
         return parseFloat(v);
     });
@@ -42,7 +43,6 @@ router.post('/updateMetadata', function (req, res) {
                     }
                 }
                 if (!saved) {
-                    console.log("Wtf_" + i);
                     doc.map[k].prob = 0;
                     saved = true;
                 }
@@ -51,6 +51,7 @@ router.post('/updateMetadata', function (req, res) {
                         if (err) {
                             console.log("Error saving the doc", err);
                         } else {
+                            socketClient.emit("triggerUpdate",result);
                             res.status(200).send("Ok!");
                         }
                     });
