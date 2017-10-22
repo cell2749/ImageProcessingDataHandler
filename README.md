@@ -26,4 +26,4 @@ The username and password should be according to the mLab database configuration
 ## References
  - Application is running on Heroku platform: https://g6-os.herokuapp.com
  - Link for mLab (Free for sub 500 MB Databases): https://mlab.com/
-
+ - TensorFlow image processing: https://github.com/Oleffa/Aalto-OperatingSystems-Challenge
