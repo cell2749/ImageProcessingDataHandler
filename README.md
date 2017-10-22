@@ -22,6 +22,25 @@ code can be separated into multiple files.
 Connection is established in the `app.js` file, where all the application configuration is taking place (apart from sockets,
 because they need to be configured along with the server). `sensitiveExample.json` contains example of what `sensitive.json` file should contain.
 The username and password should be according to the mLab database configuration.
+## Using Metadata for Parking Lot
+The data that arrives from image processing network contains on how many cars were detected,
+their relative position in the image: xmin, ymin, xmax, ymax coordinates of a rectangle. The coordinates are withing
+[0;1] range.
+
+When creating a template, data handler application uses xmin and ymin to define a parking spot.
+Whenever a data update is received by data handler the xmin and ymin of "new" cars are compared to xmin and ymin stored in DB.
+If the new coordinates are withing the range of any of the templates, then it is assumed that car has parked at that spot.
+
+Apart from rectangle coordinates, the metadata also contains amount of detected objects, and probabilities for each rectangle.
+On the frontend application we visualize this data in the form of colored table cells. If the metadata counts
+less than maximum possible parking space, then remaining space is assumed to be 100% free and explicitly shown as
+`Guaranteed parking spots x/max`.
+
+**For the probabilities:**
+ - If less than 0.33, then table cell is green and parking spot
+is considered to be free.
+ - If more than 0.33, but less than 0.6 (indicated by yellow color) then it is probably reserved, but the customer could check if it is free.
+ - If more than 0.6 the table cell is coloured
 
 ## References
  - Application is running on Heroku platform: https://g6-os.herokuapp.com
