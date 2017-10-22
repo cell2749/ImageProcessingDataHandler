@@ -10,17 +10,25 @@ router.get('/', function (req, res, next) {
 router.post('/updateMetadata', function (req, res) {
     var data = req.body;
     var regex = / [+-]?\d+(\.\d+)?/g
-    var floats = data.boxes.match(regex).map(function (v) {
-        return parseFloat(v);
-    });
+    var filtered = data.boxes.match(regex);
+    var floats = [];
+    if (filtered !== null) {
+        floats = data.boxes.match(regex).map(function (v) {
+            return parseFloat(v);
+        });
+    }
     data.boxes = [];
     for (var i = 0; i < floats.length; i += 4) {
         data.boxes.push(floats.slice(i, i + 4));
     }
     regex = /[+-]?\d+(\.\d+)?/g
-    var probabilities = data.probabilities.match(regex).map(function (v) {
-        return parseFloat(v);
-    });
+    filtered = data.probabilities.match(regex);
+    var probabilities=[];
+    if (filtered !== null) {
+        probabilities = filtered.map(function (v) {
+            return parseFloat(v);
+        });
+    }
     data.probabilities = probabilities;
     ParkingLotModel.findOne({label: "default"}, function (err, doc) {
         if (err) console.log("Error finding default", err);
@@ -51,7 +59,7 @@ router.post('/updateMetadata', function (req, res) {
                         if (err) {
                             console.log("Error saving the doc", err);
                         } else {
-                            socketClient.emit("triggerUpdate",result);
+                            socketClient.emit("triggerUpdate", result);
                             res.status(200).send("Ok!");
                         }
                     });
